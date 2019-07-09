@@ -19,12 +19,13 @@ class VideoItem {
   async build() {
     let status;
     try {
-      await this.loadImage();
       let url = await this.getVideoUrl();
       await this.loadVideo(url);
+      await this.loadImage();
       status = true;
     } catch (e) {
       status = false;
+      console.log(e);
     }
     return status;
   }
@@ -47,20 +48,13 @@ class VideoItem {
     return videoObj.url;
   }
   async loadVideo(url) {
-    try {
-      let path = `./public/video/${this.id}`;
-      let info = await easyDownload(url, path);
-      let size = getFilesizeInBytes(path);
-      if (size < 50) {
-        console.log("povtornaya");
-        setTimeout(function() {
-          easyDownload(url, path);
-        }, 5000);
-      }
-      this.server = `ffmpeg ${this[hostPoprsName]}/video/${this.id}`;
-    } catch (e) {
-      console.log(e);
+    let path = `./public/video/${this.id}`;
+    await easyDownload(url, path);
+    let size = getFilesizeInBytes(path);
+    if (size < 50) {
+      throw new Error("video download error");
     }
+    this.server = `ffmpeg ${this[hostPoprsName]}/video/${this.id}`;
   }
 }
 

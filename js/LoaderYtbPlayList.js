@@ -3,14 +3,14 @@ const VideoItem = require("./VideoItem.js");
 
 const sec = 1000;
 const min = sec * 60;
-const h = sec * 60;
+const h = min * 60;
 
 class LoaderYtbPlayList {
   constructor(host) {
     this.host = host;
     this.apiHost = "https://www.googleapis.com/youtube/v3/";
     this.key = "AIzaSyDKNaSr0YBGdkJE5g7AmdMnKNRmRV5toLc";
-    this.playListId = "PLz8Uedn1OvlI1wqkTHQd-h_tOZ5YoU9Ht";
+    this.playListId = "PLz8Uedn1OvlLC0WIPhS0xoM0fEpPtCHhr";
     this.items = new PlayListItemsArr();
     try {
       this.load();
@@ -23,21 +23,46 @@ class LoaderYtbPlayList {
   }
   async load() {
     let videoItems = [];
-    let url = `${
-      this.apiHost
-    }playlistItems?maxResults=50&part=snippet,contentDetails&key=${
-      this.key
-    }&playlistId=${this.playListId}`;
-    let result = await axios.get(url);
-    for (let item of result.data.items) {
+    let ytbItems = await this.getYtbItems();
+    for (let item of ytbItems) {
       if (this.items.inculdesPlayListItem(item)) {
         continue;
       }
       let videoItem = new VideoItem(item, this.host);
-      videoItems.push(videoItem);
-      await videoItem.build();
+      if (await videoItem.build()) {
+        videoItems.push(videoItem);
+      } else {
+        videoItem = new VideoItem(item, this.host);
+        if (await videoItem.build()) {
+          videoItems.push(videoItem);
+        }
+      }
     }
-    this.items = videoItems;
+    this.items = this.items.concat(videoItems);
+  }
+  async getYtbItems() {
+    try {
+      return await this.getYtbItemsRecurse([], false);
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  }
+  async getYtbItemsRecurse(items = [], nextPageToken) {
+    if (typeof nextPageToken === "undefined") {
+      return items;
+    }
+    nextPageToken = nextPageToken ? `&pageToken=${nextPageToken}` : "";
+    let url = `${
+      this.apiHost
+    }playlistItems?maxResults=50&part=snippet,contentDetails&key=${
+      this.key
+    }&playlistId=${this.playListId}${nextPageToken}`;
+    let result = await axios.get(url);
+    return await this.getYtbItemsRecurse(
+      items.concat(result.data.items),
+      result.data.nextPageToken
+    );
   }
 }
 
