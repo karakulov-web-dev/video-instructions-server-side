@@ -1,6 +1,10 @@
 const axios = require("axios");
 const VideoItem = require("./VideoItem.js");
 
+const sec = 1000;
+const min = sec * 60;
+const h = sec * 60;
+
 class LoaderYtbPlayList {
   constructor(host) {
     this.host = host;
@@ -10,6 +14,9 @@ class LoaderYtbPlayList {
     this.items = new PlayListItemsArr();
     try {
       this.load();
+      setInterval(() => {
+        this.load();
+      }, 12 * h);
     } catch (e) {
       console.log(e);
     }
@@ -38,7 +45,7 @@ class PlayListItemsArr extends Array {
   inculdesPlayListItem(item) {
     return this.reduce((p, c, i, a) => {
       if (p || item.id === c.id) {
-        return (p = true);
+        return true;
       }
       return p;
     }, false);

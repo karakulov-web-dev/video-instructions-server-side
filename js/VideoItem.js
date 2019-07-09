@@ -51,7 +51,7 @@ class VideoItem {
       let path = `./public/video/${this.id}`;
       let info = await easyDownload(url, path);
       let size = getFilesizeInBytes(path);
-      if (!size) {
+      if (size < 50) {
         console.log("povtornaya");
         setTimeout(function() {
           easyDownload(url, path);
