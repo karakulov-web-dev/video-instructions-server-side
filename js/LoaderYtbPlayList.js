@@ -68,8 +68,13 @@ class LoaderYtbPlayList {
 
 class PlayListItemsArr extends Array {
   inculdesPlayListItem(item) {
+    try {
+      var id = item.contentDetails.videoId;
+    } catch (e) {
+      id = null;
+    }
     return this.reduce((p, c, i, a) => {
-      if (p || item.id === c.id) {
+      if (p || id === c.id) {
         return true;
       }
       return p;
