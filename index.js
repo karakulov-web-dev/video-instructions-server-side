@@ -4,7 +4,7 @@ const LoaderYtbPlayList = require("./js/LoaderYtbPlayList.js");
 const app = express();
 app.use(express.json());
 
-const host = "http://212.77.128.203:8005";
+const host = "http://212.77.128.203/apps/video-instructions-server-side/public";
 
 const loader = new LoaderYtbPlayList(host);
 
